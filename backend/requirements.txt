@@ -6,3 +6,5 @@ scikit-learn
 catboost
 shap
 joblib
+pymongo[srv]
+python-dotenv
