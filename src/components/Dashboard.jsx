@@ -7,7 +7,7 @@ import RiskGauge from './RiskGauge';
 import FeatureImportance from './FeatureImportance';
 import SummaryCard from './SummaryCard';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost:8001';
 
 /**
  * Maps a risk_level string to a recommended action and priority.

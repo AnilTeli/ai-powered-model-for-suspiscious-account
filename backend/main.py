@@ -8,6 +8,8 @@ import datetime
 import numpy as np
 import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
