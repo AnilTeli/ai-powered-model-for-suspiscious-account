@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import joblib
@@ -9,6 +9,9 @@ import numpy as np
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
+
+from preprocessing import Preprocessor, PreprocessingError
+
 load_dotenv()
 
 app = FastAPI()
@@ -30,26 +33,40 @@ if not MONGO_URI:
     print("WARNING: MONGO_URI environment variable not found. Defaulting to local connection.")
     MONGO_URI = "mongodb://localhost:27017/"
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db = client["muleshield"]
 predictions_col = db["predictions"]
 
 
 # =================================================
-# LOAD MODEL + FEATURES
+# LOAD MODEL + PREPROCESSING ARTIFACTS
 # =================================================
+ARTIFACT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 model = CatBoostClassifier()
-model.load_model("model.cbm")
+model.load_model(os.path.join(ARTIFACT_DIR, "model.cbm"))
 
-features = joblib.load("features.pkl")
+features = joblib.load(os.path.join(ARTIFACT_DIR, "features.pkl"))
+model_features = list(model.feature_names_)
 
-suspicious = ['F3912', 'F2230', 'F3908', 'F270']
+if features != model_features:
+    raise RuntimeError(
+        "features.pkl does not match model.cbm feature order — cannot start safely"
+    )
+
+preprocessor = Preprocessor.from_artifacts(ARTIFACT_DIR)
+
+if len(preprocessor.model_features) != len(model_features):
+    raise RuntimeError(
+        f"Preprocessor feature count ({len(preprocessor.model_features)}) "
+        f"does not match model ({len(model_features)})"
+    )
 
 explainer = shap.TreeExplainer(model)
 
 
 # =================================================
-# SAFE TYPE CONVERTER (IMPORTANT FIX)
+# SAFE TYPE CONVERTER
 # =================================================
 def convert(obj):
     if isinstance(obj, np.ndarray):
@@ -64,15 +81,29 @@ def convert(obj):
 
 
 # =================================================
-# PREPROCESS
+# PREPROCESS (training-aligned)
 # =================================================
-def preprocess(data: dict):
-    df = pd.DataFrame([data])
+def preprocess(data: dict) -> pd.DataFrame:
+    if not isinstance(data, dict):
+        raise PreprocessingError("Request body must be a JSON object")
 
-    df = df.reindex(columns=features, fill_value=0)
-    df = df.drop(columns=suspicious, errors="ignore")
+    if len(data) == 0:
+        raise PreprocessingError("Request body cannot be empty")
 
-    return df
+    input_df = preprocessor.transform_row(data)
+
+    if list(input_df.columns) != features:
+        raise PreprocessingError("Feature column order mismatch after preprocessing")
+
+    if input_df.shape[1] != len(features):
+        raise PreprocessingError(
+            f"Expected {len(features)} features, got {input_df.shape[1]}"
+        )
+
+    if not np.issubdtype(input_df.dtypes.values[0], np.number):
+        raise PreprocessingError("Preprocessed features must be numeric")
+
+    return input_df
 
 
 # =================================================
@@ -80,7 +111,6 @@ def preprocess(data: dict):
 # =================================================
 @app.get("/global-importance")
 def global_importance():
-
     importance = model.get_feature_importance()
 
     df = pd.DataFrame({
@@ -96,19 +126,42 @@ def global_importance():
 # =================================================
 @app.get("/")
 def home():
-    return {"message": "Mule Account Detection API is running"}
+    return {
+        "message": "Mule Account Detection API is running",
+        "model_features": len(features),
+        "categorical_features": preprocessor.categorical_features,
+    }
 
 
 # =================================================
-# MAIN PREDICTION (FIXED)
+# MAIN PREDICTION
 # =================================================
 @app.post("/predict")
 def predict(data: dict):
-
     try:
         input_df = preprocess(data)
+    except PreprocessingError as exc:
+        print("--- 422 ERROR LOG ---")
+        print(f"Exception: {exc}")
+        print(f"Row 'index' or 'id' if present: {data.get('Unnamed: 0', data.get('id', 'N/A'))}")
+        import json
+        payload_preview = dict(list(data.items())[:20])
+        print(f"Payload preview (first 20): {json.dumps(payload_preview)}")
+        
+        # Try to extract the complaining feature from Exception
+        msg = str(exc)
+        if "Feature" in msg:
+            print(f"Extracted feature info: {msg}")
+            
+        print("---------------------")
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid request payload: {exc}",
+        ) from exc
 
-        # ================= PREDICTION =================
+    try:
         prob = model.predict_proba(input_df)[0][1]
         risk_score = round(float(prob) * 100, 2)
 
@@ -138,7 +191,6 @@ def predict(data: dict):
 
             top_features = feature_imp.head(10).to_dict(orient="records")
 
-            # ✅ FIX: convert SHAP values safely
             for row in top_features:
                 row["SHAP"] = convert(row["SHAP"])
                 row["Value"] = convert(row["Value"])
@@ -156,16 +208,13 @@ def predict(data: dict):
             top_features = []
             reasons = ["Explanation unavailable (SHAP error)"]
 
-        # ================= ALERT =================
         alert = bool(risk_score > 70)
 
-        # Extract 59 model features only and convert numpy types
         features_dict = {
             col: convert(val)
             for col, val in input_df.iloc[0].to_dict().items()
         }
 
-        # ================= MONGO AUDIT LOG =================
         mongo_doc = {
             "features": features_dict,
             "prediction": "Mule Account" if prob >= 0.5 else "Normal Account",
@@ -177,14 +226,15 @@ def predict(data: dict):
             "createdAt": datetime.datetime.now(datetime.timezone.utc)
         }
 
+        inserted_id = None
         try:
-            predictions_col.insert_one(mongo_doc)
+            result = predictions_col.insert_one(mongo_doc)
+            inserted_id = str(result.inserted_id)
         except Exception as mongo_err:
             print(f"Error inserting into MongoDB: {mongo_err}")
 
-        # ================= SAFE RETURN =================
         return {
-            "id": str(mongo_doc.get("_id", "")),
+            "id": inserted_id or "",
             "prediction": "Mule Account" if prob >= 0.5 else "Normal Account",
             "probability": float(prob),
             "risk_score": float(risk_score),
@@ -194,10 +244,11 @@ def predict(data: dict):
             "explanation": top_features
         }
 
-    except Exception as e:
-        return {
-            "error": str(e)
-        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Prediction failed: {exc}",
+        ) from exc
 
 
 # =================================================
@@ -214,4 +265,4 @@ def get_logs():
                 doc["createdAt"] = doc["createdAt"].isoformat()
         return docs
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e)) from e

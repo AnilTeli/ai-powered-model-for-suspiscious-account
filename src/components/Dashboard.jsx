@@ -64,6 +64,23 @@ function buildRecommendation(riskLevel) {
   }
 }
 
+function normalizePayloadValue(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'string') return value;
+
+  const trimmed = value.trim();
+  if (trimmed === '' || ['NA', 'NaN', 'nan'].includes(trimmed)) return null;
+
+  const num = Number(trimmed);
+  return !Number.isNaN(num) ? num : trimmed;
+}
+
+function normalizePayload(rowData) {
+  return Object.fromEntries(
+    Object.entries(rowData).map(([key, value]) => [key, normalizePayloadValue(value)])
+  );
+}
+
 // ─── Priority color helper ───────────────────────────────────────
 function getPriorityColor(priority) {
   switch (priority) {
@@ -129,10 +146,13 @@ export default function Dashboard() {
 
     try {
       const rowData = csvRows[selectedRowIdx];
+      const payload = normalizePayload(rowData);
+      console.log("Payload being sent:", payload);
+
       const res = await fetch(`${API_BASE}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rowData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

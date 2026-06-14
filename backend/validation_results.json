@@ -1,0 +1,65 @@
+{
+  "stats": {
+    "sample_size": 200,
+    "successful_predictions": 200,
+    "errors": [],
+    "error_count": 0,
+    "probability_min": 3.967890523396698e-06,
+    "probability_max": 0.9992621633252605,
+    "probability_mean": 0.007208844139220227,
+    "probability_std": 0.0708081826134232,
+    "probability_median": 0.000218687297682544,
+    "unique_probability_count": 173,
+    "shap_success_count": 200,
+    "categorical_values_tested": [
+      "G365D"
+    ]
+  },
+  "sample_predictions": [
+    {
+      "row_index": 0,
+      "F3889_raw": "G365D",
+      "F3891_raw": "selfemployed",
+      "F3889_encoded": 0.0,
+      "F3891_encoded": 5.0,
+      "probability": 0.000177817397565679,
+      "risk_score": 0.02
+    },
+    {
+      "row_index": 1,
+      "F3889_raw": "G365D",
+      "F3891_raw": "selfemployed",
+      "F3889_encoded": 0.0,
+      "F3891_encoded": 5.0,
+      "probability": 1.7559000849731336e-05,
+      "risk_score": 0.0
+    },
+    {
+      "row_index": 2,
+      "F3889_raw": "G365D",
+      "F3891_raw": "student",
+      "F3889_encoded": 0.0,
+      "F3891_encoded": 6.0,
+      "probability": 0.09441765366548376,
+      "risk_score": 9.44
+    },
+    {
+      "row_index": 3,
+      "F3889_raw": "G365D",
+      "F3891_raw": "selfemployed",
+      "F3889_encoded": 0.0,
+      "F3891_encoded": 5.0,
+      "probability": 0.0002231568667585955,
+      "risk_score": 0.02
+    },
+    {
+      "row_index": 4,
+      "F3889_raw": "G365D",
+      "F3891_raw": "student",
+      "F3889_encoded": 0.0,
+      "F3891_encoded": 6.0,
+      "probability": 0.0014908197392372172,
+      "risk_score": 0.15
+    }
+  ]
+}

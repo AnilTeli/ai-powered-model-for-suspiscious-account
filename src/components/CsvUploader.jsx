@@ -5,6 +5,17 @@ import { Upload, FileSpreadsheet, CheckCircle2, X, ChevronLeft, ChevronRight } f
  * Parses a CSV string into an array of objects.
  * Handles quoted fields (including commas and newlines inside quotes).
  */
+function normalizeCsvValue(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'string') return value;
+
+  const trimmed = value.trim();
+  if (trimmed === '' || ['NA', 'NaN', 'nan'].includes(trimmed)) return null;
+
+  const num = Number(trimmed);
+  return !Number.isNaN(num) ? num : trimmed;
+}
+
 function parseCsv(text) {
   const rows = [];
   let i = 0;
@@ -75,8 +86,7 @@ function parseCsv(text) {
       const key = headers[j]?.trim();
       if (key) {
         const raw = fields[j] ?? '';
-        const num = Number(raw);
-        row[key] = raw !== '' && !isNaN(num) ? num : raw;
+        row[key] = normalizeCsvValue(raw);
       }
     }
     rows.push(row);
