@@ -1,4 +1,6 @@
-node_modules
-backend/DataSet.csv
-backend/DataSet.csv
-backend/DataSet.csv
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.env
+.DS_Store
