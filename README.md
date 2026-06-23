@@ -1,32 +1,36 @@
-# MuleShield AI
+# MuleTrace AI
 
 ### AI-Powered Mule Account Detection & Fraud Intelligence Platform
 
-MuleShield AI is an intelligent fraud detection platform developed for the **Bank of India CyberShield Hackathon 2026**. The system leverages Machine Learning and Explainable AI to identify suspicious accounts exhibiting mule-account behavior and provides actionable intelligence for fraud analysts.
+MuleTrace AI is an intelligent fraud detection and investigation platform developed for the **Bank of India CyberShield Hackathon 2026**.
 
-The platform transforms complex risk predictions into clear investigation workflows through an intuitive banking-grade dashboard, helping institutions prioritize high-risk accounts and accelerate fraud investigations.
+The platform leverages Machine Learning, Explainable AI, and Risk Intelligence to identify suspicious accounts exhibiting mule-account behavior and assist financial institutions in investigating potential fraud cases.
 
----
-
-## Problem Statement
-
-Financial institutions face increasing challenges in identifying mule accounts used to move fraudulent funds through the banking system.
-
-MuleShield AI addresses this challenge by:
-
-* Detecting potentially suspicious accounts using AI/ML
-* Assigning dynamic risk scores
-* Explaining predictions using feature-level insights
-* Providing investigation-ready summaries
-* Supporting analyst decision-making through actionable recommendations
+MuleTrace AI transforms complex fraud predictions into actionable insights through a banking-grade dashboard designed for fraud analysts, investigators, and financial intelligence teams.
 
 ---
 
-## Key Features
+# Problem Statement
 
-### Risk Assessment Engine
+Financial frauds often involve mule accounts that act as intermediaries to move stolen funds through the banking system.
 
-Analyze customer account profiles and generate:
+Traditional investigations are time-consuming and frequently occur after funds have already moved through multiple accounts.
+
+MuleTrace AI helps institutions:
+
+* Detect suspicious accounts
+* Assign dynamic risk scores
+* Explain prediction decisions
+* Prioritize investigations
+* Generate analyst-ready reports
+
+---
+
+# Key Features
+
+## Risk Assessment Engine
+
+Analyze account profiles and generate:
 
 * Risk Score (0–100)
 * Risk Classification
@@ -35,57 +39,57 @@ Analyze customer account profiles and generate:
 
 ---
 
-### Explainable AI
+## Explainable AI
 
-Instead of providing a black-box prediction, MuleShield AI highlights:
+MuleTrace AI does not operate as a black-box model.
 
-* Top contributing features
-* Feature impact scores
-* Model reasoning
-* Investigation insights
+The platform explains predictions using:
+
+* Feature Importance Analysis
+* SHAP-Based Explanations
+* Risk Driver Identification
+* Human-Readable Insights
 
 ---
 
-### Fraud Investigation Dashboard
+## Fraud Intelligence Dashboard
 
-A professional banking dashboard displaying:
+Professional banking dashboard displaying:
 
 * Risk Score
 * Prediction Results
 * Confidence Levels
-* Feature Importance
+* Top Risk Drivers
 * AI Investigation Summary
 * Recommended Actions
 
 ---
 
-### Demo Profile Analyzer
-
-The platform includes curated demo profiles representing different risk categories.
+## Demo Profile Analyzer
 
 Users can:
 
-1. Select a profile
+1. Select a sample profile
 2. Run AI analysis
-3. Review risk assessment
-4. Examine contributing factors
-5. Download investigation reports
+3. View risk assessment
+4. Review feature contributions
+5. Generate investigation reports
 
 ---
 
-### Investigation Reports
+## Investigation Reports
 
-Generate analyst-friendly reports containing:
+Generate professional reports containing:
 
 * Executive Summary
 * Risk Assessment
-* Contributing Risk Factors
+* Feature Analysis
 * AI Findings
-* Recommended Actions
+* Investigation Recommendation
 
 ---
 
-## System Workflow
+# System Workflow
 
 ```text
 Demo Profile
@@ -98,16 +102,16 @@ Risk Score
       ↓
 Explainability Layer
       ↓
-Investigation Dashboard
+Fraud Intelligence Dashboard
       ↓
-Recommended Action
+Investigation Recommendation
 ```
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Frontend
+## Frontend
 
 * React
 * Vite
@@ -115,48 +119,56 @@ Recommended Action
 * Recharts
 * Lucide React
 
-### Backend
+## Backend
 
 * Python
-* FastAPI / Flask
+* FastAPI
 
-### Machine Learning
+## Machine Learning
 
-* CatBoost
-* SHAP
+* CatBoost Classifier
+* SHAP Explainability
 * Feature Engineering Pipeline
 
-### Database
+## Database
 
 * MongoDB
 
 ---
 
-## Dashboard Modules
+# Dashboard Modules
 
-### Profile Analysis
+## Profile Analysis
 
-Select and analyze account profiles.
-
-### Risk Intelligence
-
-View risk scores and classifications.
-
-### Feature Analysis
-
-Understand key risk-driving features.
-
-### AI Investigation Summary
-
-Receive human-readable explanations of model predictions.
-
-### Reporting
-
-Generate investigation-ready reports.
+Analyze suspicious account profiles.
 
 ---
 
-## Risk Classification
+## Risk Intelligence
+
+Generate risk scores and classifications.
+
+---
+
+## Feature Contribution Analysis
+
+Understand the key drivers behind model predictions.
+
+---
+
+## AI Investigation Summary
+
+Receive analyst-friendly explanations of model outputs.
+
+---
+
+## Reporting Engine
+
+Generate downloadable investigation reports.
+
+---
+
+# Risk Classification Framework
 
 | Risk Score | Classification |
 | ---------- | -------------- |
@@ -167,39 +179,13 @@ Generate investigation-ready reports.
 
 ---
 
-## Installation
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd MuleShield-AI-Fresh
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Open:
+# Project Structure
 
 ```text
-http://localhost:5173
-```
+MuleTrace-AI/
 
----
-
-## Project Structure
-
-```text
-src/
+├── src/
+│
 ├── components/
 │   ├── ProfileSelector
 │   ├── RiskGauge
@@ -216,36 +202,84 @@ src/
 ├── mock/
 │   └── demoProfiles.js
 │
+├── backend/
+│   ├── main.py
+│   ├── model.cbm
+│   ├── features.pkl
+│   ├── explainer.pkl
+│   └── preprocessing.py
+│
 └── assets/
 ```
 
 ---
 
-## Future Enhancements
+# Installation
 
-* Real-time transaction monitoring
-* Fraud network visualization
-* Alert management system
-* Analyst collaboration tools
-* Regulatory feed integration
-* Advanced anomaly detection
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd MuleTrace-AI
+```
+
+Install frontend dependencies:
+
+```bash
+npm install
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+Run backend:
+
+```bash
+cd backend
+python3 main.py
+```
 
 ---
 
-## Hackathon
+# Future Enhancements
+
+* Real-Time Transaction Monitoring
+* Fraud Network Visualization
+* Alert Management System
+* Analyst Collaboration Tools
+* Regulatory Feed Integration
+* Advanced Anomaly Detection
+* Automated Case Management
+
+---
+
+# Hackathon
 
 Developed for:
 
 **Bank of India CyberShield Hackathon 2026**
 
-Theme:
+Problem Statement:
 
-**AI/ML-Based Detection of Suspicious Transactions and Mule Accounts**
+**Developing a solution having AI/ML capabilities for detecting suspicious transactions and mule accounts and preventing circulation of fraudulent proceeds through mule accounts.**
 
 ---
 
-## Team
+# Vision
 
-MuleShield AI Team
+MuleTrace AI aims to empower financial institutions with intelligent fraud detection, explainable risk assessment, and streamlined investigation workflows, enabling faster identification of suspicious accounts and more effective fraud prevention strategies.
 
-Building intelligent solutions for next-generation financial fraud prevention.
+---
+
+# Team MuleTrace AI
+
+### Detect. Trace. Investigate.
