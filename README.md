@@ -192,7 +192,33 @@ Open:
 
 ```text
 http://localhost:5173
-``
+```
+
+---
+
+## Project Structure
+
+```text
+src/
+├── components/
+│   ├── ProfileSelector
+│   ├── RiskGauge
+│   ├── FeatureImportance
+│   ├── SummaryCard
+│   └── LoadingState
+│
+├── pages/
+│   └── Dashboard
+│
+├── services/
+│   └── api.js
+│
+├── mock/
+│   └── demoProfiles.js
+│
+└── assets/
+```
+
 ---
 
 ## Future Enhancements
